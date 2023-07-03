@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Infeed" Id="{8e2afdf2-4c37-4036-afa7-e6e9b3c72e16}">
+    <Declaration><![CDATA[TYPE Infeed :
+STRUCT
+	roller : Roller;
+	valve_stopper : Valve;
+	photo_sensor :ARRAY[0..1]OF FB_PhotoSensor;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

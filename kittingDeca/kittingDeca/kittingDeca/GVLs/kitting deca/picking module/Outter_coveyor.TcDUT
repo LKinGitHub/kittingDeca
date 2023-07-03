@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Outter_coveyor" Id="{32b06072-052b-46a8-b5e9-bee3be0eef1f}">
+    <Declaration><![CDATA[TYPE Outter_coveyor :
+STRUCT
+	belt	: ARRAY[0..1] OF Belt;
+	valve	: ARRAY[0..1] OF Valve;
+	photo_sensor	: ARRAY[0..1] OF BOOL;	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

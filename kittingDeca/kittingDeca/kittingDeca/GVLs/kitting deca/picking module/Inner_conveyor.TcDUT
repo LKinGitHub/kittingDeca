@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Inner_conveyor" Id="{f5c0ba46-6e55-43a2-9b5a-0ab2105d475b}">
+    <Declaration><![CDATA[TYPE Inner_conveyor :
+STRUCT
+	belt	: ARRAY[0..2] OF Belt;
+	valve	: ARRAY[0..2] OF Valve;
+	rfid	: ARRAY[0..1] OF RFID;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Roller" Id="{2dbdf7ad-cdf6-46d1-abd3-013eeb4d7cf7}">
+    <Declaration><![CDATA[TYPE Roller :
+STRUCT
+	Power  		: BOOL;
+	forward  	: BOOL; 
+	backward	: BOOL;
+	err 		: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_DigitalInput" Id="{0c828bc3-61fa-42f0-90e1-b5e09c7e0c89}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_DigitalInput
+// Debounce a digital inpit.
+VAR_INPUT
+	D: BOOL := FALSE;				// Raw sensor input.
+	on_ms : DINT := 0;				// Time (ms) signal is true before 'on' is true.
+	off_ms : DINT := 0;				// Time (ms) signal is false before 'on' is false.
+END_VAR
+VAR_OUTPUT
+	Q : BOOL := FALSE;	// Debounced signal state.
+END_VAR
+VAR
+	on_timer : TON;
+	off_timer : TON;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[on_timer.PT := DINT_TO_TIME(on_ms);
+off_timer.PT := DINT_TO_TIME(off_ms);
+
+on_timer(IN := D);
+off_timer(IN := NOT D);
+
+Q := (on_timer.Q OR Q) AND NOT off_timer.Q;
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_DigitalInput">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

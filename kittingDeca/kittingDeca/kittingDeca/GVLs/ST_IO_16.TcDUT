@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_IO_16" Id="{5d1e4f1f-4cd4-440c-9cbc-1c32909a6e2d}">
+    <Declaration><![CDATA[TYPE ST_IO_16: 
+STRUCT
+	Ch : ARRAY[0..15] OF BOOL  ; 
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

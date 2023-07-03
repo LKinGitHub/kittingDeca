@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Buffer" Id="{64af0156-ebb8-4561-baad-a0a0fc74f39e}">
+    <Declaration><![CDATA[TYPE Buffer :
+STRUCT
+	mcAxis 					: FB_MotionAxis_MC;
+	st_mcAxis 				: ST_MotionAxis_MC;
+	AxisRef					: AXIS_REF;
+	axis_sensor	: BOOL;
+	power_axis	: BOOL;
+	contractor_axis	: BOOL;
+	surfae_slot_0	: BOOL;
+	surfae_slot_1	: BOOL;
+	surfae_slot_2	: BOOL;
+	above_fixture_light_curtain	: BOOL;
+	lamp_button	: BOOL;
+	button	: BOOL;
+	locked	: BOOL;
+	magnet	: BOOL;
+	magnet_locked	: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

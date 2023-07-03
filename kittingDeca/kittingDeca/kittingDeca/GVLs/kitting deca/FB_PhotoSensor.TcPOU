@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_PhotoSensor" Id="{e23ef8c8-6948-4a59-bdb4-73f26a20af7f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PhotoSensor
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+    status: DigitalInputStatus;
+	debounced_input: FB_DigitalInput;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="set_status" Id="{96676ddf-7e61-439e-b86b-3accdce84ef1}">
+      <Declaration><![CDATA[METHOD PUBLIC set_status : BOOL
+VAR_INPUT
+	new_raw_value: BOOL;
+	on_ms : DINT := 0;				// Time (ms) signal is true before 'on' is true.
+	off_ms : DINT := 50;				// Time (ms) signal is true before 'on' is true.
+END_VAR
+VAR
+	new_debounced_value: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[debounced_input(D := new_raw_value, on_ms := on_ms, off_ms:= off_ms, Q => new_debounced_value);
+
+IF new_debounced_value = TRUE THEN
+	status := DigitalInputStatus.HIGH;
+ELSE
+	status := DigitalInputStatus.LOW;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_PhotoSensor">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PhotoSensor.set_status">
+      <LineId Id="29" Count="1" />
+      <LineId Id="21" Count="3" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

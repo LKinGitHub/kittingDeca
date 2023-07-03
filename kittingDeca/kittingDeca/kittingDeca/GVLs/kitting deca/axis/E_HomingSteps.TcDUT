@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_HomingSteps" Id="{88ecf4de-2776-42b6-b723-17a2fbfbd7e3}">
+    <Declaration><![CDATA[TYPE E_HomingSteps :
+(
+	IDLE 				:= 0,
+	INIT				:= 5,
+	READ_AND_SAVE_PARAM	:= 10,
+	DISABLE_SOFT_LIM	:= 15,
+	ENABLE_JOG			:= 20,
+	HOMING				:= 25,
+	SET_POSITION		:= 30,
+	START					:=	40,
+	CHECK					:=	45,
+	JOG_FW					:=	100,
+	JOG_BW_DOG				:=	105,
+	FW_DOG_OFF				:=	110,
+	BW_DOG_ON				:=	115,
+	
+	JOG_BW					:=	130,
+	JOG_FW_DOG				:=	135,
+	BW_DOG_OFF				:=	140,
+	FW_DOG_ON				:=	145,
+	MCHOME					:=	150,
+	WAIT					:=	160,
+	DONE				:= 800,
+	ERROR				:= 900
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

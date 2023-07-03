@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_RemIndex" Id="{0424b2b2-4f24-440f-b6fd-19c82987d78c}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_RemIndex :
+(
+	REM0		:= 0,
+	REM1 		:= 1,
+	REM2		:= 2,
+	REM3		:= 3,
+	REM4		:= 4,
+	REM5 		:= 5,
+	REM6		:= 6,
+	REM7		:= 7,
+	REM8		:= 8,
+	REM9 		:= 9
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

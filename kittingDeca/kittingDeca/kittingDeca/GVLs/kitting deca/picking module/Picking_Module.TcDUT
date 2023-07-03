@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Picking_Module" Id="{587eba2b-48fa-46a7-8c76-351ff0445c60}">
+    <Declaration><![CDATA[TYPE Picking_Module :
+STRUCT
+	buffer : ARRAY[0..1]OF Buffer;	
+	inConv : Inner_conveyor;
+	outConv : Outter_coveyor;
+	power_robot			: BOOL;
+	contactor_robot		: BOOL;
+	power_inConv		: BOOL;
+	contactor_inConv	: BOOL;
+	power_outConv		: BOOL;
+	contactor_outConv	: BOOL;	
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

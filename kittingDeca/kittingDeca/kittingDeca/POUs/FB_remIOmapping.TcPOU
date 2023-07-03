@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_remIOmapping" Id="{86b153d0-c3a0-45a9-9707-0507b1981158}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_remIOmapping
+VAR_INPUT
+	iReM	: INT;
+END_VAR
+VAR_OUTPUT
+END_VAR
+	
+VAR
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+GVL.rem[iReM].infeed[0].roller.err						:= G_IO.arDI[iReM*4].Ch[0];
+GVL.rem[iReM].infeed[0].valve_stopper.extended  		:= G_IO.arDI[iReM*4].Ch[1];
+GVL.rem[iReM].infeed[0].valve_stopper.retracted  		:= G_IO.arDI[iReM*4].Ch[2];
+GVL.rem[iReM].infeed[0].photo_sensor[0].set_status(G_IO.arDI[iReM*4].Ch[3],10,50);
+GVL.rem[iReM].infeed[0].photo_sensor[1].set_status(G_IO.arDI[iReM*4].Ch[4],10,50);
+GVL.rem[iReM].outfeed[0].roller.err					:= G_IO.arDI[iReM*4].Ch[5];
+GVL.rem[iReM].outfeed[0].photo_sensor[0].set_status(G_IO.arDI[iReM*4].Ch[6],10,50);
+GVL.rem[iReM].outfeed[0].photo_sensor[1].set_status(G_IO.arDI[iReM*4].Ch[7],10,50);
+GVL.rem[iReM].lift[0].roller.err						:= G_IO.arDI[iReM*4].Ch[8];
+GVL.rem[iReM].lift[0].contactor_axis						:= G_IO.arDI[iReM*4].Ch[9];
+//GVL.rem[iReM].lift[0].limit_sensor[0]	:= TRUE;
+//GVL.rem[iReM].lift[0].limit_sensor[1]	:= TRUE;
+//GVL.rem[iReM].lift[0].limit_sensor[2]	:= TRUE;
+GVL.rem[iReM].lift[0].limit_sensor[0]	:= G_IO.arDI[iReM*4].Ch[10];
+GVL.rem[iReM].lift[0].limit_sensor[1]	:= G_IO.arDI[iReM*4].Ch[11];
+GVL.rem[iReM].lift[0].limit_sensor[2]	:= G_IO.arDI[iReM*4].Ch[12];
+GVL.rem[iReM].lift[0].valve_perturbation[0].extended  	:= G_IO.arDI[iReM*4].Ch[13];
+GVL.rem[iReM].lift[0].valve_perturbation[0].retracted 	:= G_IO.arDI[iReM*4].Ch[14];
+GVL.rem[iReM].lift[0].valve_perturbation[1].extended  	:= G_IO.arDI[iReM*4].Ch[15];
+GVL.rem[iReM].lift[0].valve_perturbation[1].retracted 	:= G_IO.arDI[iReM*4+1].Ch[0];
+GVL.rem[iReM].lift[0].valve_perturbation[2].extended  	:= G_IO.arDI[iReM*4+1].Ch[1];
+GVL.rem[iReM].lift[0].valve_perturbation[2].retracted 	:= G_IO.arDI[iReM*4+1].Ch[2];
+GVL.rem[iReM].lift[0].valve_perturbation[3].extended  	:= G_IO.arDI[iReM*4+1].Ch[3];
+GVL.rem[iReM].lift[0].valve_perturbation[3].retracted	:= G_IO.arDI[iReM*4+1].Ch[4];
+GVL.rem[iReM].lift[0].valve_clamp.extended  := G_IO.arDI[iReM*4+1].Ch[5];
+GVL.rem[iReM].lift[0].valve_clamp.retracted  := G_IO.arDI[iReM*4+1].Ch[6];
+GVL.rem[iReM].lift[0].photo_sensor[0].set_status(G_IO.arDI[iReM*4+1].Ch[7],10,50);
+GVL.rem[iReM].lift[0].photo_sensor[1].set_status(G_IO.arDI[iReM*4+1].Ch[8],10,50);
+
+G_IO.arDO[iReM*4].Ch[0]	:= GVL.rem[iReM].infeed[0].roller.Power;
+G_IO.arDO[iReM*4].Ch[1]	:= GVL.rem[iReM].infeed[0].roller.forward;
+G_IO.arDO[iReM*4].Ch[2]	:= GVL.rem[iReM].infeed[0].roller.backward;
+G_IO.arDO[iReM*4].Ch[3]	:= GVL.rem[iReM].outfeed[0].roller.Power;
+G_IO.arDO[iReM*4].Ch[4]	:= GVL.rem[iReM].outfeed[0].roller.forward;
+G_IO.arDO[iReM*4].Ch[5]	:= GVL.rem[iReM].outfeed[0].roller.backward;
+G_IO.arDO[iReM*4].Ch[6]	:= GVL.rem[iReM].lift[0].roller.Power;
+G_IO.arDO[iReM*4].Ch[7]	:= GVL.rem[iReM].lift[0].roller.forward;
+G_IO.arDO[iReM*4].Ch[8]	:= GVL.rem[iReM].lift[0].roller.backward;
+G_IO.arDO[iReM*4].Ch[9]	:= GVL.rem[iReM].lift[0].power_axis;
+G_IO.arDO[iReM*4+2].Ch[0]	:= GVL.rem[iReM].infeed[0].valve_stopper.extend;
+G_IO.arDO[iReM*4+2].Ch[1]	:= GVL.rem[iReM].infeed[0].valve_stopper.retract;
+G_IO.arDO[iReM*4+2].Ch[2]	:= GVL.rem[iReM].lift[0].valve_perturbation[0].extend;
+G_IO.arDO[iReM*4+2].Ch[4]	:= GVL.rem[iReM].lift[0].valve_perturbation[1].extend;
+G_IO.arDO[iReM*4+2].Ch[6]	:= GVL.rem[iReM].lift[0].valve_perturbation[2].extend;
+G_IO.arDO[iReM*4+2].Ch[8]	:= GVL.rem[iReM].lift[0].valve_perturbation[3].extend;
+G_IO.arDO[iReM*4+2].Ch[10]	:= GVL.rem[iReM].lift[0].valve_clamp.extend;
+G_IO.arDO[iReM*4+2].Ch[11]	:= GVL.rem[iReM].lift[0].valve_clamp.retract;
+
+
+
+GVL.rem[iReM].infeed[1].roller.err	:= G_IO.arDI[iReM*4+2].Ch[0];
+GVL.rem[iReM].infeed[1].valve_stopper.extended  := G_IO.arDI[iReM*4+2].Ch[1];
+GVL.rem[iReM].infeed[1].valve_stopper.retracted  := G_IO.arDI[iReM*4+2].Ch[2];
+GVL.rem[iReM].infeed[1].photo_sensor[0].set_status(G_IO.arDI[iReM*4+2].Ch[3],10,50);
+GVL.rem[iReM].infeed[1].photo_sensor[1].set_status(G_IO.arDI[iReM*4+2].Ch[4],10,50);
+GVL.rem[iReM].outfeed[1].roller.err	:= G_IO.arDI[iReM*4+2].Ch[5];
+GVL.rem[iReM].outfeed[1].photo_sensor[0].set_status(G_IO.arDI[iReM*4+2].Ch[6],10,50);
+GVL.rem[iReM].outfeed[1].photo_sensor[1].set_status(G_IO.arDI[iReM*4+2].Ch[7],10,50);
+GVL.rem[iReM].lift[1].roller.err	:= G_IO.arDI[iReM*4+2].Ch[8];
+GVL.rem[iReM].lift[1].contactor_axis	:= G_IO.arDI[iReM*4+2].Ch[9];
+//GVL.rem[iReM].lift[1].limit_sensor[0]	:= TRUE;
+//GVL.rem[iReM].lift[1].limit_sensor[1]	:= TRUE;
+//GVL.rem[iReM].lift[1].limit_sensor[2]	:= TRUE;
+GVL.rem[iReM].lift[1].limit_sensor[0]	:= G_IO.arDI[iReM*4+2].Ch[10];
+GVL.rem[iReM].lift[1].limit_sensor[1]	:= G_IO.arDI[iReM*4+2].Ch[11];
+GVL.rem[iReM].lift[1].limit_sensor[2]	:= G_IO.arDI[iReM*4+2].Ch[12];
+GVL.rem[iReM].lift[1].valve_perturbation[0].extended  := G_IO.arDI[iReM*4+2].Ch[13];
+GVL.rem[iReM].lift[1].valve_perturbation[0].retracted  := G_IO.arDI[iReM*4+2].Ch[14];
+GVL.rem[iReM].lift[1].valve_perturbation[1].extended  := G_IO.arDI[iReM*4+2].Ch[15];
+GVL.rem[iReM].lift[1].valve_perturbation[1].retracted  := G_IO.arDI[iReM*4+3].Ch[0];
+GVL.rem[iReM].lift[1].valve_perturbation[2].extended  := G_IO.arDI[iReM*4+3].Ch[1];
+GVL.rem[iReM].lift[1].valve_perturbation[2].retracted  := G_IO.arDI[iReM*4+3].Ch[2];
+GVL.rem[iReM].lift[1].valve_perturbation[3].extended  := G_IO.arDI[iReM*4+3].Ch[3];
+GVL.rem[iReM].lift[1].valve_perturbation[3].retracted  := G_IO.arDI[iReM*4+3].Ch[4];
+GVL.rem[iReM].lift[1].valve_clamp.extended  := G_IO.arDI[iReM*4+3].Ch[5];
+GVL.rem[iReM].lift[1].valve_clamp.retracted  := G_IO.arDI[iReM*4+3].Ch[6];
+GVL.rem[iReM].lift[1].photo_sensor[0].set_status(G_IO.arDI[iReM*4+3].Ch[7],10,50);
+GVL.rem[iReM].lift[1].photo_sensor[1].set_status(G_IO.arDI[iReM*4+3].Ch[8],10,50);
+
+G_IO.arDO[iReM*4+1].Ch[0]	:= GVL.rem[iReM].infeed[1].roller.Power;
+G_IO.arDO[iReM*4+1].Ch[1]	:= GVL.rem[iReM].infeed[1].roller.forward;
+G_IO.arDO[iReM*4+1].Ch[2]	:= GVL.rem[iReM].infeed[1].roller.backward;
+G_IO.arDO[iReM*4+1].Ch[3]	:= GVL.rem[iReM].outfeed[1].roller.Power;
+G_IO.arDO[iReM*4+1].Ch[4]	:= GVL.rem[iReM].outfeed[1].roller.forward;
+G_IO.arDO[iReM*4+1].Ch[5]	:= GVL.rem[iReM].outfeed[1].roller.backward;
+G_IO.arDO[iReM*4+1].Ch[6]	:= GVL.rem[iReM].lift[1].roller.Power;
+G_IO.arDO[iReM*4+1].Ch[7]	:= GVL.rem[iReM].lift[1].roller.forward;
+G_IO.arDO[iReM*4+1].Ch[8]	:= GVL.rem[iReM].lift[1].roller.backward;
+G_IO.arDO[iReM*4+1].Ch[9]	:= GVL.rem[iReM].lift[1].power_axis;
+G_IO.arDO[iReM*4+2].Ch[12]	:= GVL.rem[iReM].infeed[1].valve_stopper.extend;
+G_IO.arDO[iReM*4+2].Ch[13]	:= GVL.rem[iReM].infeed[1].valve_stopper.retract;
+G_IO.arDO[iReM*4+2].Ch[14]	:= GVL.rem[iReM].lift[1].valve_perturbation[0].extend;
+G_IO.arDO[iReM*4+3].Ch[0]	:= GVL.rem[iReM].lift[1].valve_perturbation[1].extend;
+G_IO.arDO[iReM*4+3].Ch[2]	:= GVL.rem[iReM].lift[1].valve_perturbation[2].extend;
+G_IO.arDO[iReM*4+3].Ch[4]	:= GVL.rem[iReM].lift[1].valve_perturbation[3].extend;
+G_IO.arDO[iReM*4+3].Ch[6]	:= GVL.rem[iReM].lift[1].valve_clamp.extend;
+G_IO.arDO[iReM*4+3].Ch[7]	:= GVL.rem[iReM].lift[1].valve_clamp.retract;
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_remIOmapping">
+      <LineId Id="14" Count="98" />
+      <LineId Id="165" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_DIO" Id="{159196b8-d7a4-4f09-8ac0-46a0e5e17a2f}">
+    <Declaration><![CDATA[TYPE ST_DIO :
+STRUCT
+	arstDI				: ARRAY[0..DiMouduleMAX] OF ST_IO_16_int; 	// struct of digital Imputs for use in program and hmi 
+	arstDO				: ARRAY[0..DOMODULEMAX] OF ST_IO_16_int;	// struct of digital Outputs for use in program and hmi 
+	eDOutputMode		: E_DOutputMode 					;	// Switch for change sourse of DO (0 from plc, 1 from HMI)
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

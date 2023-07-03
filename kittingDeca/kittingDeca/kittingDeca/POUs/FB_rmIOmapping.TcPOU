@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_rmIOmapping" Id="{f9da39ed-36d0-42f1-9aef-37e18d597b90}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_rmIOmapping
+VAR_INPUT
+	iRm	: INT;
+END_VAR
+VAR_OUTPUT
+END_VAR
+	
+VAR
+	offset	: INT;
+	rTrig_power_inConv	: R_TRIG;
+	fTrig_power_inConv	: F_TRIG;
+	rTrig_power_outConv	: R_TRIG;
+	fTrig_power_outConv	: F_TRIG;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[offset	:= 50+iRm*5;
+//pm[odd]
+GVL.pm[iRm*2].buffer[0].contractor_axis				:= G_IO.arDI[offset].Ch[0];
+GVL.pm[iRm*2].buffer[0].axis_sensor					:= G_IO.arDI[offset].Ch[1];
+GVL.pm[iRm*2].buffer[0].surfae_slot_0				:= G_IO.arDI[offset].Ch[2];
+GVL.pm[iRm*2].buffer[0].surfae_slot_1				:= G_IO.arDI[offset].Ch[3];
+GVL.pm[iRm*2].buffer[0].surfae_slot_2				:= G_IO.arDI[offset].Ch[4];
+GVL.pm[iRm*2].buffer[0].above_fixture_light_curtain	:= G_IO.arDI[offset].Ch[5];
+GVL.pm[iRm*2].buffer[0].button						:= G_IO.arDI[offset].Ch[6];
+GVL.pm[iRm*2].buffer[0].locked						:= G_IO.arDI[offset].Ch[7];
+GVL.pm[iRm*2].buffer[0].magnet_locked				:= G_IO.arDI[offset].Ch[8];
+GVL.pm[iRm*2].buffer[1].contractor_axis				:= G_IO.arDI[offset].Ch[9];
+GVL.pm[iRm*2].buffer[1].axis_sensor					:= G_IO.arDI[offset].Ch[10];
+GVL.pm[iRm*2].buffer[1].surfae_slot_0				:= G_IO.arDI[offset].Ch[11];
+GVL.pm[iRm*2].buffer[1].surfae_slot_1				:= G_IO.arDI[offset].Ch[12];
+GVL.pm[iRm*2].buffer[1].surfae_slot_2				:= G_IO.arDI[offset].Ch[13];
+GVL.pm[iRm*2].buffer[1].above_fixture_light_curtain	:= G_IO.arDI[offset].Ch[14];
+GVL.pm[iRm*2].buffer[1].button						:= G_IO.arDI[offset].Ch[15];
+GVL.pm[iRm*2].buffer[1].locked						:= G_IO.arDI[offset+1].Ch[0];
+GVL.pm[iRm*2].buffer[1].magnet_locked				:= G_IO.arDI[offset+1].Ch[1];
+GVL.pm[iRm*2].contactor_robot						:= G_IO.arDI[offset+1].Ch[2];
+GVL.pm[iRm*2].inConv.valve[0].extended				:= G_IO.arDI[offset+1].Ch[3];
+GVL.pm[iRm*2].inConv.valve[0].retracted				:= G_IO.arDI[offset+1].Ch[4];
+GVL.pm[iRm*2].inConv.valve[1].extended				:= G_IO.arDI[offset+1].Ch[5];
+GVL.pm[iRm*2].inConv.valve[1].retracted				:= G_IO.arDI[offset+1].Ch[6];
+GVL.pm[iRm*2].inConv.valve[2].extended				:= G_IO.arDI[offset+1].Ch[7];
+GVL.pm[iRm*2].inConv.valve[2].retracted				:= G_IO.arDI[offset+1].Ch[8];
+GVL.pm[iRm*2].outConv.photo_sensor[0]				:= G_IO.arDI[offset+1].Ch[9];
+GVL.pm[iRm*2].outConv.photo_sensor[1]				:= G_IO.arDI[offset+1].Ch[10];
+GVL.pm[iRm*2].outConv.valve[0].extended				:= G_IO.arDI[offset+1].Ch[11];
+GVL.pm[iRm*2].outConv.valve[0].retracted			:= G_IO.arDI[offset+1].Ch[12];
+GVL.pm[iRm*2].outConv.valve[1].extended				:= G_IO.arDI[offset+1].Ch[13];
+GVL.pm[iRm*2].outConv.valve[1].retracted			:= G_IO.arDI[offset+1].Ch[14];
+
+G_IO.arDO[offset].Ch[0]	:= GVL.pm[iRm*2].buffer[0].power_axis;
+G_IO.arDO[offset].Ch[1]	:= GVL.pm[iRm*2].buffer[0].magnet;
+G_IO.arDO[offset].Ch[2]	:= GVL.pm[iRm*2].buffer[1].power_axis;
+G_IO.arDO[offset].Ch[3]	:= GVL.pm[iRm*2].buffer[1].magnet;
+G_IO.arDO[offset].Ch[4]	:= GVL.pm[iRm*2].power_robot;
+G_IO.arDO[offset].Ch[12]	:= GVL.pm[iRm*2].buffer[0].lamp_button;
+G_IO.arDO[offset].Ch[13]	:= GVL.pm[iRm*2].buffer[1].lamp_button;
+	
+G_IO.arDO[offset+2].Ch[0]	:= GVL.pm[iRm*2].inConv.valve[0].extend;
+G_IO.arDO[offset+2].Ch[2]	:= GVL.pm[iRm*2].inConv.valve[1].extend;
+G_IO.arDO[offset+2].Ch[4]	:= GVL.pm[iRm*2].inConv.valve[2].extend;
+G_IO.arDO[offset+2].Ch[6]	:= GVL.pm[iRm*2].outConv.valve[0].extend;
+G_IO.arDO[offset+2].Ch[8]	:= GVL.pm[iRm*2].outConv.valve[1].extend;
+
+
+
+
+//pm[even]
+GVL.pm[iRm*2+1].buffer[0].contractor_axis				:= G_IO.arDI[offset+2].Ch[0];
+GVL.pm[iRm*2+1].buffer[0].axis_sensor					:= G_IO.arDI[offset+2].Ch[1];
+GVL.pm[iRm*2+1].buffer[0].surfae_slot_0				:= G_IO.arDI[offset+2].Ch[2];
+GVL.pm[iRm*2+1].buffer[0].surfae_slot_1				:= G_IO.arDI[offset+2].Ch[3];
+GVL.pm[iRm*2+1].buffer[0].surfae_slot_2				:= G_IO.arDI[offset+2].Ch[4];
+GVL.pm[iRm*2+1].buffer[0].above_fixture_light_curtain	:= G_IO.arDI[offset+2].Ch[5];
+GVL.pm[iRm*2+1].buffer[0].button						:= G_IO.arDI[offset+2].Ch[6];
+GVL.pm[iRm*2+1].buffer[0].locked						:= G_IO.arDI[offset+2].Ch[7];
+GVL.pm[iRm*2+1].buffer[0].magnet_locked				:= G_IO.arDI[offset+2].Ch[8];
+GVL.pm[iRm*2+1].buffer[1].contractor_axis				:= G_IO.arDI[offset+2].Ch[9];
+GVL.pm[iRm*2+1].buffer[1].axis_sensor					:= G_IO.arDI[offset+2].Ch[10];
+GVL.pm[iRm*2+1].buffer[1].surfae_slot_0				:= G_IO.arDI[offset+2].Ch[11];
+GVL.pm[iRm*2+1].buffer[1].surfae_slot_1				:= G_IO.arDI[offset+2].Ch[12];
+GVL.pm[iRm*2+1].buffer[1].surfae_slot_2				:= G_IO.arDI[offset+2].Ch[13];
+GVL.pm[iRm*2+1].buffer[1].above_fixture_light_curtain	:= G_IO.arDI[offset+2].Ch[14];
+GVL.pm[iRm*2+1].buffer[1].button						:= G_IO.arDI[offset+2].Ch[15];
+GVL.pm[iRm*2+1].buffer[1].locked						:= G_IO.arDI[offset+3].Ch[0];
+GVL.pm[iRm*2+1].buffer[1].magnet_locked				:= G_IO.arDI[offset+3].Ch[1];
+GVL.pm[iRm*2+1].contactor_robot						:= G_IO.arDI[offset+3].Ch[2];
+GVL.pm[iRm*2+1].inConv.valve[0].extended				:= G_IO.arDI[offset+3].Ch[3];
+GVL.pm[iRm*2+1].inConv.valve[0].retracted				:= G_IO.arDI[offset+3].Ch[4];
+GVL.pm[iRm*2+1].inConv.valve[1].extended				:= G_IO.arDI[offset+3].Ch[5];
+GVL.pm[iRm*2+1].inConv.valve[1].retracted				:= G_IO.arDI[offset+3].Ch[6];
+GVL.pm[iRm*2+1].inConv.valve[2].extended				:= G_IO.arDI[offset+3].Ch[7];
+GVL.pm[iRm*2+1].inConv.valve[2].retracted				:= G_IO.arDI[offset+3].Ch[8];
+GVL.pm[iRm*2+1].outConv.photo_sensor[0]				:= G_IO.arDI[offset+3].Ch[9];
+GVL.pm[iRm*2+1].outConv.photo_sensor[1]				:= G_IO.arDI[offset+3].Ch[10];
+GVL.pm[iRm*2+1].outConv.valve[0].extended				:= G_IO.arDI[offset+3].Ch[11];
+GVL.pm[iRm*2+1].outConv.valve[0].retracted			:= G_IO.arDI[offset+3].Ch[12];
+GVL.pm[iRm*2+1].outConv.valve[1].extended				:= G_IO.arDI[offset+3].Ch[13];
+GVL.pm[iRm*2+1].outConv.valve[1].retracted			:= G_IO.arDI[offset+3].Ch[14];
+
+G_IO.arDO[offset].Ch[5]	:= GVL.pm[iRm*2+1].buffer[0].power_axis;
+G_IO.arDO[offset].Ch[6]	:= GVL.pm[iRm*2+1].buffer[0].magnet;
+G_IO.arDO[offset].Ch[7]	:= GVL.pm[iRm*2+1].buffer[1].power_axis;
+G_IO.arDO[offset].Ch[8]	:= GVL.pm[iRm*2+1].buffer[1].magnet;
+G_IO.arDO[offset].Ch[9]	:= GVL.pm[iRm*2+1].power_robot;
+G_IO.arDO[offset].Ch[14]	:= GVL.pm[iRm*2+1].buffer[0].lamp_button;
+G_IO.arDO[offset].Ch[15]	:= GVL.pm[iRm*2+1].buffer[1].lamp_button;
+	
+G_IO.arDO[offset+2].Ch[10]	:= GVL.pm[iRm*2+1].inConv.valve[0].extend;
+G_IO.arDO[offset+2].Ch[12]	:= GVL.pm[iRm*2+1].inConv.valve[1].extend;
+G_IO.arDO[offset+2].Ch[14]	:= GVL.pm[iRm*2+1].inConv.valve[2].extend;
+G_IO.arDO[offset+3].Ch[0]	:= GVL.pm[iRm*2+1].outConv.valve[0].extend;
+G_IO.arDO[offset+3].Ch[2]	:= GVL.pm[iRm*2+1].outConv.valve[1].extend;	
+
+GVL.pm[iRm*2].contactor_inConv			:= G_IO.arDI[offset+4].Ch[0];//pm[0] and pm[1]
+GVL.pm[iRm*2].contactor_outConv			:= G_IO.arDI[offset+4].Ch[1];//pm[0] and pm[1]
+GVL.pm[iRm*2+1].contactor_inConv			:= G_IO.arDI[offset+4].Ch[0];//pm[0] and pm[1]
+GVL.pm[iRm*2+1].contactor_outConv			:= G_IO.arDI[offset+4].Ch[1];//pm[0] and pm[1]
+
+rTrig_power_inConv(CLK:=GVL.pm[iRm*2].power_inConv OR GVL.pm[iRm*2+1].power_inConv);
+fTrig_power_inConv(CLK:=GVL.pm[iRm*2].power_inConv OR GVL.pm[iRm*2+1].power_inConv);
+rTrig_power_outConv(CLK:=GVL.pm[iRm*2].power_outConv OR GVL.pm[iRm*2+1].power_outConv);
+fTrig_power_outConv(CLK:=GVL.pm[iRm*2].power_outConv OR GVL.pm[iRm*2+1].power_outConv);
+
+IF rTrig_power_inConv.Q THEN
+	GVL.pm[iRm*2].power_inConv	:= TRUE;
+	GVL.pm[iRm*2+1].power_inConv	:= TRUE;
+END_IF
+IF fTrig_power_inConv.Q THEN
+	GVL.pm[iRm*2].power_inConv	:= FALSE;
+	GVL.pm[iRm*2+1].power_inConv	:= FALSE;
+END_IF
+IF rTrig_power_outConv.Q THEN
+	GVL.pm[iRm*2].power_outConv	:= TRUE;
+	GVL.pm[iRm*2+1].power_outConv	:= TRUE;
+END_IF
+IF fTrig_power_outConv.Q THEN
+	GVL.pm[iRm*2].power_outConv	:= FALSE;
+	GVL.pm[iRm*2+1].power_outConv	:= FALSE;
+END_IF
+G_IO.arDO[offset].Ch[10]	:= GVL.pm[iRm*2].power_inConv OR GVL.pm[iRm*2+1].power_inConv;//pm[0] and pm[1]
+G_IO.arDO[offset].Ch[11]	:= GVL.pm[iRm*2].power_outConv OR GVL.pm[iRm*2+1].power_outConv;//pm[0] and pm[1]]]></ST>
+    </Implementation>
+    <LineIds Name="FB_rmIOmapping">
+      <LineId Id="366" Count="0" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="197" Count="31" />
+      <LineId Id="291" Count="11" />
+      <LineId Id="229" Count="0" />
+      <LineId Id="231" Count="1" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="253" Count="0" />
+      <LineId Id="304" Count="29" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="256" Count="11" />
+      <LineId Id="254" Count="0" />
+      <LineId Id="337" Count="1" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="352" Count="0" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="356" Count="0" />
+      <LineId Id="355" Count="0" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="345" Count="1" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="347" Count="0" />
+      <LineId Id="349" Count="2" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="358" Count="6" />
+      <LineId Id="357" Count="0" />
+      <LineId Id="247" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

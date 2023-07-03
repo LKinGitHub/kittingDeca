@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="G_IO" Id="{dfe05562-cd77-4d74-a229-ed718eb42956}">
+    <Declaration><![CDATA[{attribute 'global_init_slot' := '40600'}
+VAR_GLOBAL CONSTANT
+	{attribute 'global_init_slot'}
+	DiMouduleMAX 			:	INT	:=	100;
+	{attribute 'global_init_slot'}
+	DOMODULEMAX 			:	INT	:=	100;
+END_VAR
+
+VAR_GLOBAL
+	{attribute 'TcContextName':='PlcTask1'}
+	arDI	AT%I*		: ARRAY[0..DiMouduleMAX ] OF ST_IO_16;		//  links to Digital input  Modules 
+	{attribute 'TcContextName':='PlcTask1'}
+	arDO	AT%Q*		: ARRAY[0..DOMODULEMAX ] OF ST_IO_16;		//  links to Digital output Modules
+
+	iDiMouduleMAX		: INT := 100 							; 		//Number of DI module 
+	iDOModuleMax		: INT := 100 							; 		//Number of DO module 
+
+
+	stDIO				: ST_DIO 							;		// struct DIO for use in plc program
+		
+	{attribute 'TcContextName':='PlcTask1'}
+   	
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_MotionAxis_MC" Id="{de8809ea-5132-44df-be3c-541b49d17281}">
+    <Declaration><![CDATA[TYPE ST_MotionAxis_MC :
+STRUCT
+	rVelocity						: 	LREAL   						;
+	rVelocity2						: 	LREAL   						;
+	rMaxVelocity					:	LREAL							;	
+	rAcceleration					:	LREAL							;
+	rMaxAcceleration				:	LREAL							;
+	rDeceleration					:	LREAL   						;
+	rMaxDeceleration				:	LREAL							;
+	rJerk							:	LREAL							;
+	rMaxJerk						:	LREAL							;
+	rPosition						:	LREAL							;
+	rSetPosDistance					:	LREAL							;
+	rSetPos							: 	LREAL							;	
+	rDistance						:   LREAL							;
+	rDistance2						:   LREAL							;	
+	
+	rActualPosSet					:	LREAL							;//ADD BY EVAN 
+	rVelocitySet					: 	LREAL   						;//ADD BY EVAN 	
+	xHoming							:	BOOL							;//ADD BY EVAN 
+	
+	rMaxDistance					:	LREAL							;
+	bLimit							:   BOOL							;
+	bNegLim							:   BOOL							;
+	bPosLim							:	BOOL							;
+	bNegSen							:   BOOL							;
+	bPosSen							:	BOOL							;
+	bPositionSensor					:	BOOL							;
+	rHomePos						:	LREAL							;
+	rActualPos						:	LREAL							;
+	PosDiff							:	LREAL							;
+	rActualCurr						:	LREAL							;
+	axisDirection					:	MC_Direction					;
+	
+	rVeloPers						: 	LREAL							;
+	rAccPers						: 	LREAL							;   
+	rDecPers						: 	LREAL							;                                             					
+	SetHomePos						: 	LREAL							;
+	HomeVelo						: 	LREAL							;
+	PosDiffTarget					: 	LREAL							;
+	rFirstpos						: 	LREAL							;
+	iAxisID							:	INT								;
+	xhsHomingStart					: 	BOOL							;
+	xHomingDone						: 	BOOL							;
+	xForceControlStart				: 	BOOL							;
+	xFoceControlDone				:	BOOL							;	
+	xMoveABSDone					: 	BOOL							;
+	xMoveRelDone					:	BOOL							;
+	bInCouple						:	BOOL							;//Flag Axis is coupled 
+    xMuteAxisErrorMessages			:	BOOL							;                                         					
+	//Visible/Hide HMI interfaces                   					
+	bHomeButtonShow					:	BOOL							; 
+	bNegSensorShow					:	BOOL							; 
+	bPosSensorShow					:	BOOL							;
+	bBacklashShow					:	BOOL							;
+	bUnitDegShow					:	BOOL							;
+    bJerkShow						:	BOOL							; 
+	bStopButtonShow					:	BOOL							; 
+	   
+	
+	bMoveAbsHMI						:	BOOL;
+	rVelocityHMI 					: 	LREAL;
+	rActualPosHMI					:	LREAL							;//ADD BY EVAN
+	bMChomingEnable					:	BOOL							;                                         				
+	// backlash compensation                        	
+	rBacklashvalue					:	LREAL							;
+	xbacklashEnable					:	BOOL							;                        		                					
+	bdirFW							:	BOOL							;// on hard stop homing , define the direction of rotation
+	
+	ModOp					 		: 	SINT							;// Axis operation mode (8 )
+
+//	==============================	Beckhoff Tc2_MC2 library(motion)	==================================
+	mcPower 						: 	MC_Power					    ;(*	Axis power, enable/disable																			*)
+	mcAxisStates					:	MC_AxisStates					;(*	Driver Feedback, curr motor stage 																	*)
+	mcHalt							: 	MC_Halt							;(*	Stops an axis with a defined braking ramp															*)
+	mcHome							: 	MC_Home							;(*	Axis homing scenario and execution																	*)
+	mcJog							: 	MC_Jog							;(*	Axis Joging BW/FW																					*)	
+	mcMoveAbsolute					: 	MC_MoveAbsolute					;(*	Axis GoTo Absolute position																			*)	
+	mcMoveRelative					: 	MC_MoveRelative					;(*	Axis GoTo Step by SetPos +/- actual position														*)
+	mcMoveVelocity					: 	MC_MoveVelocity					;(*	Axis GoTo with constant velocity														*)
+	mcReadStatus					: 	MC_ReadStatus					;(*	Read Axis statuses from driver																		*)
+	mcReset							: 	MC_Reset						;(*	Reset Driver																						*)
+	mcStop							: 	MC_Stop							;(*	Stop Driver																							*)
+	mcReadActualPosition			:	MC_ReadActualPosition			;(*	Read the current axis position																		*)
+	mcSetpoint						: 	MC_SetPosition					;(*	Sets the current axis position to a parameterizable value											*)
+	mcWriteBoolParameter			: 	MC_WriteBoolParameter			;(*	Write bool param to driver																			*)
+	mcReadBoolParameter				:	MC_ReadBoolParameter			;(*	Read bool param from driver																			*)
+	mcAxisParameter					:   MC_AxisParameter				;(*	Data type is used in conjunction with function blocks for reading and writing of axis parameters	*)
+	CoeWrt							:	FB_EcCoESdoWrite;											
+	
+//	======================================================================================================	
+
+//
+	iSdoWrite	:INT; //6:clear encoder
+	sNetID : STRING;
+	nSlaveAddr	:UINT;
+	nSubIndex	: BYTE;
+	nIndex	: WORD;
+	
+	iCoeWrt	: INT;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

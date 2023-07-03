@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.16">
+  <DUT Name="user_defined_structure" Id="{b79ec341-cf34-4a2c-aaad-a7f1ff5f8c24}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE user_defined_structure :
+STRUCT
+	a:BOOL;
+	b:INT;
+	c:STRING;
+	d:REAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

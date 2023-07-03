@@ -1,0 +1,620 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_MotionAxis_MC" Id="{ca80f1ef-324b-44ba-b9f2-eaf2b6169801}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_MotionAxis_MC
+
+VAR_INPUT
+	ZSN	   			: BOOL												;
+	ZSP				: BOOL												; 
+	Exceeding_us			: INT;
+	sNameAxis				: STRING [40];
+
+END_VAR         	
+                	
+VAR  
+	rtFirstCycle	: R_TRIG;						
+	mcHomeAxis		: 	MC_HomeAxis						;//ADD BY EVAN 
+	sAxisName		: STRING											;//Axis name          	
+	xPlus			: BOOL												;	
+	xMinus			: BOOL												;
+	bDone			: BOOL												;	
+
+// Variables for Hard Stop Homing	                        			
+	iStatehsHomig	: E_HomingSteps := E_HomingSteps.IDLE				;
+	rtHome			: R_TRIG											;
+	rtHomeReset		: R_TRIG											;
+	tonTimeOut		: TON												;
+	xTimerStart		: BOOL												;
+	bLSDefaultVal	: BOOL												; // Save Def value from driver
+	xHomeError		: BOOL												;
+// Variables for Force Control          					
+
+	rtForceC		: R_TRIG											;
+	rtForceCReset	: R_TRIG											;
+	DelMaxPos		: LREAL 											;
+	rCurrLimit		: LREAL												;
+	StartPos		: LREAL												;
+	xForceCError	: BOOL												;
+//	Variables for Backlash Compensation
+	rLastMove		: LREAL := 1										;
+	tonBackComp		: TON												;
+	rBacklashPer	: LREAL												;	
+	
+// Variables for errors
+	rtError					:	R_TRIG;
+	pTextType				:	POINTER TO STRING;
+	sAxisErrorID			:	STRING(10);	
+	ErrorMSG				:	STRING[255];
+
+//	Exceeding time measuring
+	sysTime					:	GETCPUCOUNTER;//GETSYSTEMTIME;					//	Used to measure execution time.
+	uStartTime				:	UDINT;
+	uFinishTime				:	UDINT;
+	ftimeDiff				:	REAL;
+	ton_dly	: TON;
+END_VAR         	
+                	
+VAR_IN_OUT      	
+	IN_OUT 			: ST_MotionAxis_MC	;//struct for each axis
+	AXIS 			: AXIS_REF			;//Axis obj	
+END_VAR
+
+VAR_OUTPUT
+	xError			: BOOL				;
+	xBusy			: BOOL				;
+END_VAR
+VAR CONSTANT
+	parallelGroupTLName		:	STRING := 'Port_851.TL_Axis_Error';
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Power options ********************************************************************************************)			
+IN_OUT.mcPower(
+	Axis				:= AXIS, 
+	Enable				:= , 
+	Enable_Positive		:= ZSP, 
+	Enable_Negative		:= ZSN OR IN_OUT.mcHome.Busy, 
+	Override			:= , 
+	BufferMode			:= , 
+	Options				:= , 
+	Status				=> , 
+	Busy				=> , 
+	Active				=> , 
+	Error				=> , 
+	ErrorID				=> );
+	
+(* Halt Mode ********************************************************************************************)	
+IN_OUT.mcHalt(
+	Axis				:= AXIS, 
+	Execute				:= , 
+	Deceleration		:= IN_OUT.rDeceleration, 
+	Jerk				:= , 
+	BufferMode			:= , 
+	Options				:= , 
+	Done				=> , 
+	Busy				=> , 
+	Active				=> , 
+	CommandAborted		=> , 
+	Error				=> , 
+	ErrorID				=> );
+	
+(* Homing ***********************************************************************************************)
+IN_OUT.mcHome(
+	Axis				:= AXIS, 
+	Execute				:= , 
+	Position			:= in_out.rFirstpos, 
+	HomingMode			:= MC_Direct, 
+	BufferMode			:= , 
+	Options				:= , 
+	bCalibrationCam		:= ,//NOT  ZSN, 
+	Done				=> , 
+	Busy				=> , 
+	Active				=> , 
+	CommandAborted		=> , 
+	Error				=> , 
+	ErrorID				=> );
+	
+(* JOG **************************************************************************************************)
+IN_OUT.mcJog(
+	Axis				:= AXIS, 
+	JogForward			:= , 
+	JogBackwards		:= , 
+	Mode				:= E_JogMode.MC_JOGMODE_CONTINOUS, 
+	Position			:= , 
+	Velocity			:= IN_OUT.rVelocity, 
+	Acceleration		:= IN_OUT.rAcceleration, 
+	Deceleration		:= IN_OUT.rDeceleration, 
+	Jerk				:= IN_OUT.rJerk, 
+	Done				=> , 
+	Busy				=> , 
+	Active				=> , 
+	CommandAborted		=> , 
+	Error				=> , 
+	ErrorID				=> );
+	
+(* Move Absolute ****************************************************************************************)	
+IN_OUT.mcMoveAbsolute(
+	Axis				:= AXIS, 
+	Execute				:= , 
+	Position			:= IN_OUT.rActualPosSet, 
+	Velocity			:= IN_OUT.rVelocitySet,     
+	Acceleration		:= IN_OUT.rAcceleration, 
+	Deceleration		:= IN_OUT.rDeceleration, 
+	Jerk				:= IN_OUT.rJerk,         
+	BufferMode			:= , 
+	Options				:= , 
+	Done				=> , 
+	Busy				=> , 
+	Active				=> , 
+	CommandAborted		=> , 
+	Error				=> , 
+	ErrorID				=> );
+
+	IF IN_OUT.bMoveAbsHMI THEN
+		IN_OUT.mcMoveAbsolute.Execute	:= TRUE;
+		IN_OUT.rActualPosSet	:= IN_OUT.rActualPosHMI;
+		IN_OUT.rVelocitySet		:= IN_OUT.rVeloPers;
+	END_IF
+(* Move Relative *********************************************************************************************************)
+IN_OUT.mcMoveRelative(
+	Axis				:= AXIS, 
+	Execute				:= , 
+	Distance			:= IN_OUT.rPosition + IN_OUT.rBacklashvalue, 
+	Velocity			:= IN_OUT.rVelocity,      
+	Acceleration		:= IN_OUT.rAcceleration,  
+	Deceleration		:= IN_OUT.rDeceleration,  
+	Jerk				:= IN_OUT.rJerk,          
+	BufferMode			:= ,
+	Options				:= , 
+	Done				=> bDone, 
+	Busy				=> , 
+	Active				=> , 
+	CommandAborted		=> , 
+	Error				=> , 
+	ErrorID				=> );
+	
+(* Move Velocity *********************************************************************************************************)
+	
+IN_OUT.mcMoveVelocity(
+	Axis				:=	AXIS,
+	Execute				:=	,
+	Velocity			:=	IN_OUT.rVelocity,
+	Acceleration		:=	IN_OUT.rAcceleration,
+	Deceleration		:=	IN_OUT.rDeceleration,
+	Jerk				:=	IN_OUT.rJerk,
+	Direction			:=	IN_OUT.axisDirection,
+	BufferMode			:=	,
+	Options				:=	,
+	InVelocity			=>	,
+	Busy				=>	,
+	Active				=>	,
+	CommandAborted		=>	,
+	Error				=>	,
+	ErrorID				=>	);
+	
+(**)	
+IN_OUT.mcReadStatus(
+	Axis				:= AXIS, 
+	Enable				:= TRUE, 
+	Valid				=> , 
+	Busy				=> , 
+	Error				=> , 
+	ErrorID				=> , 
+	ErrorStop			=> , 
+	Disabled			=> , 
+	Stopping			=> , 
+	StandStill			=> , 
+	DiscreteMotion		=> , 
+	ContinuousMotion	=> , 
+	SynchronizedMotion	=> , 
+	Homing				=> , 
+	ConstantVelocity	=> , 
+	Accelerating		=> , 
+	Decelerating		=> , 
+	Status				=> );
+	
+(* Reset ************************************************************************************************)
+IN_OUT.mcReset(
+	Axis				:= AXIS, 
+	Execute				:= , 
+	Done				=> , 
+	Busy				=> , 
+	Error				=> , 
+	ErrorID				=> );
+	
+(* Stop *************************************************************************************************)
+IN_OUT.mcStop(
+	Axis				:= AXIS, 
+	Execute				:= , 
+	Deceleration		:= , 
+	Jerk				:= , 
+	Options				:= , 
+	Done				=> , 
+	Busy				=> , 
+	Active				=> , 
+	CommandAborted		=> , 
+	Error				=> , 
+	ErrorID				=> );
+
+(* Set Position *************************************************************************************************)
+in_out.mcSetpoint(
+	Axis			 := AXIS, 
+	Execute			 := , 
+	Position		 := IN_OUT.rSetPos, 
+	Mode			 := , 
+	Options			 := , 
+	Done			 => , 
+	Busy			 => , 
+	Error			 => , 
+	ErrorID			 => );
+
+
+(* write status *************************************************************************************************)
+IN_OUT.mcWriteBoolParameter(
+	Axis			:= 	AXIS, 
+	Execute:= 				, 
+	ParameterNumber:= 		, 
+	Value:= , 
+	Done=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> );
+
+(* Read status *************************************************************************************************)
+IN_OUT.mcReadBoolParameter(
+	Axis:= AXIS, 
+	Enable:= , 
+	ParameterNumber:= , 
+	ReadMode:= , 
+	Valid=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> , 
+	Value=> );	
+
+(*Read Actualposition***************************************************************)
+IN_OUT.mcReadActualPosition(
+	Axis:= AXIS, 
+	Enable:= TRUE, 
+	Valid=> , 
+	Busy=> , 
+	Error=> , 
+	ErrorID=> , 
+	Position=> IN_OUT.rActualPos );   
+(*COE write**************************************************************************)	
+
+IN_OUT.CoeWrt(
+	sNetId:= IN_OUT.sNetID, 
+	nSlaveAddr:= IN_OUT.nSlaveAddr, 
+	nSubIndex:= IN_OUT.nSubIndex, 
+	nIndex:= IN_OUT.nIndex, 
+	pSrcBuf:= ADR(IN_OUT.iSdoWrite), 
+	cbBufLen:= SIZEOF(IN_OUT.iSdoWrite), 
+	bExecute:= , 
+	tTimeout:= , 
+	bBusy=> , 
+	bError=> , 
+	nErrId=> );
+	ton_dly(PT:=T#100MS);
+CASE IN_OUT.iCoeWrt OF 
+	0:
+		IN_OUT.CoeWrt.bExecute := FALSE;
+	1:
+		IN_OUT.CoeWrt.bExecute := TRUE;
+		IN_OUT.nIndex	:= 16#2005;
+		IN_OUT.nSubIndex	:= 16#1F;
+		IN_OUT.iSdoWrite	:= 6;//clear encoder and set current position as origin
+		IN_OUT.iCoeWrt	:= 10;
+	2:
+		IN_OUT.CoeWrt.bExecute := TRUE;
+		IN_OUT.nIndex	:= 16#2002;
+		IN_OUT.nSubIndex	:= 16#02;
+		IN_OUT.iSdoWrite	:= 1;//linear mode
+		IN_OUT.iCoeWrt	:= 10;
+	3:
+		IN_OUT.CoeWrt.bExecute := TRUE;
+		IN_OUT.nIndex	:= 16#2002;
+		IN_OUT.nSubIndex	:= 16#02;
+		IN_OUT.iSdoWrite	:= 2;//rotate mode
+		IN_OUT.iCoeWrt	:= 10;
+	4:
+		IN_OUT.CoeWrt.bExecute := TRUE;
+		IN_OUT.nIndex	:= 16#2004;
+		IN_OUT.nSubIndex	:= 16#06;
+		IN_OUT.iSdoWrite	:= 1;//breaker on
+		IN_OUT.iCoeWrt	:= 10;
+	5:
+		IN_OUT.CoeWrt.bExecute := TRUE;
+		IN_OUT.nIndex	:= 16#2004;
+		IN_OUT.nSubIndex	:= 16#06;
+		IN_OUT.iSdoWrite	:= 0;//breaker off
+		IN_OUT.iCoeWrt	:= 10;		
+	10:		
+		IN_OUT.iCoeWrt	:= 0;
+END_CASE
+
+
+
+
+
+
+
+	(*mcHomeAxis***************************************************************)
+	mcHomeAxis(
+		xExecute:= , 
+		xReset:= , 
+		InOut:=IN_OUT , 
+		xRedy=> , 
+		xBusy=> , 
+		xDone=> , 
+		xError=> ); 
+	                                                                                                              	
+(******************************************************************************************************************)
+	
+(**error flag**)
+	xError := IN_OUT.mcReadStatus.Error OR xHomeError OR IN_OUT.mcMoveAbsolute.Error ;	
+	rtError(CLK:= (IN_OUT.mcReadStatus.ErrorID <> 0) AND NOT IN_OUT.xMuteAxisErrorMessages);
+	
+(*************************** READ ERROR FROM DRIVE *************************)
+rtFirstCycle(CLK:= TRUE);
+sysTime(cpuCntLoDW => uStartTime);	
+sysTime(cpuCntLoDW => uFinishTime);
+//M_CheckExceedingTime();
+
+(*************************** GET AXIS ERROR MESSAGE *************************)	
+	
+	IF rtError.Q THEN
+	sAxisErrorID	:=	TO_STRING(IN_OUT.mcReadStatus.ErrorID);
+	END_IF
+(**remember the Velocity**) 
+	IF IN_OUT.rVeloPers <> 0 THEN 
+		IN_OUT.rVelocity:= IN_OUT.rVeloPers;
+	ELSE 
+		IN_OUT.rVeloPers := IN_OUT.rVelocity;	
+	END_IF	
+(**remember the Acceleration**)
+	IF IN_OUT.rAccPers <> 0 THEN 
+		IN_OUT.rAcceleration:= IN_OUT.rAccPers;
+	ELSE 
+		IN_OUT.rAccPers := IN_OUT.rAcceleration;		
+	END_IF	
+(**remember the Deceleration**)
+	IF IN_OUT.rDecPers <> 0 THEN 
+		IN_OUT.rDeceleration:= IN_OUT.rDecPers;
+	ELSE 
+		IN_OUT.rDecPers := IN_OUT.rDeceleration;		
+	END_IF
+(**False all Executions if function done or error**)
+	IF IN_OUT.mcMoveRelative.Done OR IN_OUT.mcMoveRelative.Error OR IN_OUT.mcReset.Busy THEN 
+		IN_OUT.mcMoveRelative.Execute := FALSE;
+	END_IF
+
+	IF IN_OUT.mcMoveVelocity.Error OR IN_OUT.mcReset.Busy OR IN_OUT.mcMoveVelocity.Busy THEN 
+		IN_OUT.mcMoveVelocity.Execute := FALSE;
+	END_IF
+	
+	IF IN_OUT.mcSetpoint.done OR IN_OUT.mcSetpoint.Error THEN
+		IN_OUT.mcSetpoint.Execute := FALSE;
+	END_IF
+	
+    IF  IN_OUT.mcMoveAbsolute.Done OR IN_OUT.mcMoveAbsolute.Error OR IN_OUT.mcReset.Busy THEN 
+		IN_OUT.mcMoveAbsolute.Execute := FALSE;
+	END_IF
+ 
+	 IF IN_OUT.mcHome.Done OR IN_OUT.mcHome.Error THEN 
+		IN_OUT.mcHome.Execute := FALSE;
+	END_IF
+	
+	IF IN_OUT.mcStop.Done OR IN_OUT.mcStop.Error THEN 
+		IN_OUT.mcStop.Execute := FALSE;
+	END_IF
+	
+	IF IN_OUT.mcReset.Done OR IN_OUT.mcReset.Error THEN 
+		IN_OUT.mcReset.Execute := FALSE;
+	END_IF
+			
+	IF IN_OUT.mcReadBoolParameter.Valid OR IN_OUT.mcReadBoolParameter.Error THEN 
+		IN_OUT.mcReadBoolParameter.Enable := FALSE;
+	END_IF	
+	
+	IF IN_OUT.mcWriteBoolParameter.Done OR IN_OUT.mcWriteBoolParameter.Error THEN 
+		IN_OUT.mcWriteBoolParameter.Execute	:= FALSE;
+	END_IF	
+		
+
+	
+	
+	
+(**Save done state into temp variable**)	
+	
+	IF IN_OUT.mcMoveAbsolute.Done THEN
+		IN_OUT.xMoveABSDone := TRUE;
+	END_IF	
+	
+	IF IN_OUT.mcMoveRelative.Done THEN
+		IN_OUT.xMoveRelDone := TRUE;
+	END_IF
+	
+]]></ST>
+    </Implementation>
+    <Property Name="P_AxisName" Id="{094743f5-b136-48b4-b605-5fd26680bfed}">
+      <Declaration><![CDATA[PROPERTY P_AxisName : STRING
+]]></Declaration>
+      <Set Name="Set" Id="{2ccdb01d-0165-4d88-87b4-c11727f2bbff}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[sAxisName := P_AxisName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="P_CurrLimit" Id="{519602c4-14a7-4327-a3ca-2f41ff6c5c5d}">
+      <Declaration><![CDATA[PROPERTY P_CurrLimit : LREAL]]></Declaration>
+      <Set Name="Set" Id="{646e0e60-ec1e-4ace-bd79-1147f5e2df19}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[rCurrLimit := P_CurrLimit;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="P_DelMaxPos" Id="{6ecdb536-135e-42ba-b965-10bfd06a7473}">
+      <Declaration><![CDATA[PROPERTY P_DelMaxPos : LREAL]]></Declaration>
+      <Set Name="Set" Id="{b74d0b50-c12e-4360-9b39-447e2609d444}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DelMaxPos := P_DelMaxPos;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="P_ForceCError" Id="{c2c42c29-befb-4e3f-8671-2d2595f70133}">
+      <Declaration><![CDATA[PROPERTY P_ForceCError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{22cd7458-0f90-4520-a424-7a3869e02703}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[P_ForceCError := xForceCError;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="P_hsHomingError" Id="{74f2954d-cc04-4af4-95ab-3055da4fc7fc}">
+      <Declaration><![CDATA[PROPERTY P_hsHomingError : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5e238761-9ba9-4394-adc9-048eb9416b36}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[P_hsHomingError := xHomeError;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="P_StartPos" Id="{418ac9b2-b307-4f60-9c96-04382ba77b16}">
+      <Declaration><![CDATA[PROPERTY P_StartPos : LREAL]]></Declaration>
+      <Set Name="Set" Id="{1c3ccce8-6631-457a-be08-e5f56bf41e9c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StartPos := P_StartPos;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="FB_MotionAxis_MC">
+      <LineId Id="2390" Count="0" />
+      <LineId Id="1765" Count="0" />
+      <LineId Id="1235" Count="78" />
+      <LineId Id="3216" Count="0" />
+      <LineId Id="1601" Count="0" />
+      <LineId Id="3217" Count="0" />
+      <LineId Id="3220" Count="1" />
+      <LineId Id="3218" Count="0" />
+      <LineId Id="1317" Count="16" />
+      <LineId Id="2084" Count="0" />
+      <LineId Id="2086" Count="0" />
+      <LineId Id="2007" Count="1" />
+      <LineId Id="2012" Count="13" />
+      <LineId Id="2009" Count="0" />
+      <LineId Id="1334" Count="79" />
+      <LineId Id="1690" Count="0" />
+      <LineId Id="3027" Count="7" />
+      <LineId Id="3026" Count="0" />
+      <LineId Id="3287" Count="1" />
+      <LineId Id="3290" Count="10" />
+      <LineId Id="3289" Count="0" />
+      <LineId Id="3358" Count="0" />
+      <LineId Id="3330" Count="1" />
+      <LineId Id="3341" Count="0" />
+      <LineId Id="3334" Count="0" />
+      <LineId Id="3337" Count="2" />
+      <LineId Id="3336" Count="0" />
+      <LineId Id="3367" Count="0" />
+      <LineId Id="3335" Count="0" />
+      <LineId Id="3342" Count="2" />
+      <LineId Id="3340" Count="0" />
+      <LineId Id="3368" Count="0" />
+      <LineId Id="3345" Count="0" />
+      <LineId Id="3347" Count="2" />
+      <LineId Id="3346" Count="0" />
+      <LineId Id="3369" Count="0" />
+      <LineId Id="3350" Count="0" />
+      <LineId Id="3352" Count="2" />
+      <LineId Id="3351" Count="0" />
+      <LineId Id="3370" Count="0" />
+      <LineId Id="3359" Count="3" />
+      <LineId Id="3355" Count="0" />
+      <LineId Id="3371" Count="0" />
+      <LineId Id="3356" Count="0" />
+      <LineId Id="3364" Count="0" />
+      <LineId Id="3332" Count="0" />
+      <LineId Id="3303" Count="0" />
+      <LineId Id="3309" Count="0" />
+      <LineId Id="3325" Count="0" />
+      <LineId Id="3329" Count="0" />
+      <LineId Id="3310" Count="1" />
+      <LineId Id="3307" Count="0" />
+      <LineId Id="3135" Count="0" />
+      <LineId Id="3127" Count="6" />
+      <LineId Id="3036" Count="0" />
+      <LineId Id="3286" Count="0" />
+      <LineId Id="1445" Count="0" />
+      <LineId Id="2623" Count="0" />
+      <LineId Id="1446" Count="1" />
+      <LineId Id="2157" Count="0" />
+      <LineId Id="2695" Count="0" />
+      <LineId Id="2698" Count="0" />
+      <LineId Id="2714" Count="0" />
+      <LineId Id="2944" Count="2" />
+      <LineId Id="2697" Count="0" />
+      <LineId Id="2709" Count="0" />
+      <LineId Id="2696" Count="0" />
+      <LineId Id="2138" Count="0" />
+      <LineId Id="2152" Count="0" />
+      <LineId Id="2140" Count="0" />
+      <LineId Id="1449" Count="5" />
+      <LineId Id="1456" Count="5" />
+      <LineId Id="1463" Count="5" />
+      <LineId Id="1694" Count="0" />
+      <LineId Id="1470" Count="2" />
+      <LineId Id="2027" Count="0" />
+      <LineId Id="2031" Count="0" />
+      <LineId Id="2029" Count="1" />
+      <LineId Id="1473" Count="7" />
+      <LineId Id="1487" Count="9" />
+      <LineId Id="1499" Count="10" />
+      <LineId Id="1522" Count="0" />
+      <LineId Id="493" Count="0" />
+      <LineId Id="1608" Count="0" />
+      <LineId Id="1681" Count="0" />
+      <LineId Id="1766" Count="0" />
+      <LineId Id="1778" Count="2" />
+      <LineId Id="1612" Count="1" />
+      <LineId Id="2228" Count="0" />
+      <LineId Id="2230" Count="1" />
+      <LineId Id="2229" Count="0" />
+      <LineId Id="3035" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MotionAxis_MC.P_AxisName.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MotionAxis_MC.P_CurrLimit.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MotionAxis_MC.P_DelMaxPos.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MotionAxis_MC.P_ForceCError.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MotionAxis_MC.P_hsHomingError.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MotionAxis_MC.P_StartPos.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

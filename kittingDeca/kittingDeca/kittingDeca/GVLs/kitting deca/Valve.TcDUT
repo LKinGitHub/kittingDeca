@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Valve" Id="{164df541-7fba-4d4c-948b-1cbd7aa60e7d}">
+    <Declaration><![CDATA[TYPE Valve :
+STRUCT
+	extend 		 : BOOL;
+	retract		 : BOOL;
+	extended 	 : BOOL;
+	retracted 	 : BOOL;	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

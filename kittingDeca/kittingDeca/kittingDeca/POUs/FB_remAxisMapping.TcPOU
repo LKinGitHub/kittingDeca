@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_remAxisMapping" Id="{11ee5ee8-c256-451e-ba33-dcce5c8dfe05}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_remAxisMapping
+VAR_INPUT
+	iReM	: INT;
+	iLift	: INT;
+	//sNetID	: STRING;
+	nSlaveAddr : UINT;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//========== Lift0 Axis Config ==========
+GVL.rem[iReM].lift[iLift].mcAxis
+(
+	ZSN		:= GVL.rem[iReM].lift[iLift].limit_sensor[2] OR GVL.rem[iReM].lift[iLift].st_mcAxis.xHoming,
+	ZSP		:= GVL.rem[iReM].lift[iLift].limit_sensor[1]	OR GVL.rem[iReM].lift[iLift].st_mcAxis.xHoming,
+	IN_OUT	:= GVL.rem[iReM].lift[iLift].st_mcAxis, 
+	AXIS	:= GVL.rem[iReM].lift[iLift].Axisref, 
+);
+GVL.rem[iReM].lift[iLift].st_mcAxis.bPosSensorShow	:= TRUE;
+GVL.rem[iReM].lift[iLift].st_mcAxis.bNegSensorShow	:= TRUE;
+GVL.rem[iReM].lift[iLift].st_mcAxis.bStopButtonShow	:= TRUE;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rMaxAcceleration	:= 50000;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rMaxDeceleration	:= 50000;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rMaxJerk			:= 500000;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rAcceleration	:= 2500;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rDeceleration	:= 2500;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rJerk			:= 12500;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rMaxVelocity		:= 100;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rMaxDistance		:= 50;
+GVL.rem[iReM].lift[iLift].st_mcAxis.bPosSen	:= GVL.rem[iReM].lift[iLift].limit_sensor[1] ;
+GVL.rem[iReM].lift[iLift].st_mcAxis.bNegSen	:= GVL.rem[iReM].lift[iLift].limit_sensor[2] ;
+GVL.rem[iReM].lift[iLift].st_mcAxis.mcHome.bCalibrationCam	:= GVL.rem[iReM].lift[iLift].limit_sensor[0];
+GVL.rem[iReM].lift[iLift].st_mcAxis.bPositionSensor	:= GVL.rem[iReM].lift[iLift].limit_sensor[0];
+GVL.rem[iReM].lift[iLift].st_mcAxis.bdirFW	:= TRUE;
+GVL.rem[iReM].lift[iLift].st_mcAxis.rSetPos	:= 0;
+GVL.rem[iReM].lift[iLift].st_mcAxis.sNetID := '192.168.11.159.1.2';
+GVL.rem[iReM].lift[iLift].st_mcAxis.nSlaveAddr	:= nSlaveAddr;]]></ST>
+    </Implementation>
+    <LineIds Name="FB_remAxisMapping">
+      <LineId Id="17" Count="25" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

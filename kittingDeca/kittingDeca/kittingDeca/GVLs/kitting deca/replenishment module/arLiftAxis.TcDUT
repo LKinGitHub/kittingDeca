@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="arLiftAxis" Id="{d7d57c75-bbdd-497d-9f25-c8ff05048bd0}">
+    <Declaration><![CDATA[TYPE arLiftAxis :
+STRUCT
+	lift : ARRAY[0..1] OF FB_remAxisMapping;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

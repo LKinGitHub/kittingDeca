@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_pmAxisMapping" Id="{f4c462bd-6e65-4304-a9d0-c3c8d96ae1fc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_pmAxisMapping
+VAR_INPUT
+	iPM	: INT;
+	iBuffer	: INT;
+	//sNetID	: STRING;
+	nSlaveAddr : UINT;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//========== Lift0 Axis Config ==========
+GVL.pm[iPM].buffer[iBuffer].mcAxis
+(
+	ZSN		:= TRUE,
+	ZSP		:= TRUE,
+	IN_OUT	:= GVL.rem[iPM].lift[iBuffer].st_mcAxis, 
+	AXIS	:= GVL.rem[iPM].lift[iBuffer].Axisref, 
+);
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bPosSensorShow	:= FALSE;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bNegSensorShow	:= FALSE;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bStopButtonShow	:= TRUE;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rMaxAcceleration	:= 50000;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rMaxDeceleration	:= 50000;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rMaxJerk			:= 500000;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rAcceleration	:= 2500;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rDeceleration	:= 2500;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rJerk			:= 12500;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rMaxVelocity		:= 100;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rMaxDistance		:= 50;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bPosSen	:= TRUE ;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bNegSen	:= TRUE ;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.mcHome.bCalibrationCam	:= GVL.pm[iPM].buffer[iBuffer].axis_sensor;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bPositionSensor	:= GVL.pm[iPM].buffer[iBuffer].axis_sensor;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.bdirFW	:= TRUE;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.rSetPos	:= 0;
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.sNetID := '192.168.11.159.1.2';
+GVL.pm[iPM].buffer[iBuffer].st_mcAxis.nSlaveAddr	:= nSlaveAddr;]]></ST>
+    </Implementation>
+    <LineIds Name="FB_pmAxisMapping">
+      <LineId Id="17" Count="25" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

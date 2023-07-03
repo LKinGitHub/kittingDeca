@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_byte" Id="{ba5f7407-b7d3-4312-8461-b7d414fb9084}">
+    <Declaration><![CDATA[TYPE ST_byte :
+STRUCT
+	arByte				: ARRAY[1..32] OF ST_IO_byte; 	// struct of digital Imputs for use in program and hmi 
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

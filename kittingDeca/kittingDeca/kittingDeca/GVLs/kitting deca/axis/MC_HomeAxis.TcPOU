@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MC_HomeAxis" Id="{994399f9-7878-4425-887e-8af0d446f64c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MC_HomeAxis
+VAR_INPUT
+	xExecute		: BOOL;
+	xReset			: BOOL;
+END_VAR
+
+VAR
+	eStates 		: E_HomingSteps :=E_HomingSteps.IDLE;
+	rtHomeStart		: R_TRIG;
+	rtHomeReset		: R_TRIG;
+	ton_delay		: TON;
+	bError			: BOOL;	
+END_VAR
+VAR_IN_OUT
+	InOut		: ST_MotionAxis_MC;
+END_VAR
+VAR_OUTPUT
+	xRedy		: BOOL;
+	xBusy		: BOOL;
+	xDone		: BOOL;
+	xError		: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[rtHomeStart(CLK:=xExecute);
+rtHomeReset(CLK:=xReset);
+ton_delay(PT:= T#2S);
+
+IF rtHomeStart.Q THEN
+	eStates := E_HomingSteps.START;
+END_IF
+IF rtHomeReset.Q THEN
+	eStates := E_HomingSteps.IDLE;
+END_IF
+IF InOut.mcStop.Execute THEN
+	eStates := E_HomingSteps.ERROR;
+END_IF
+CASE eStates OF
+		E_HomingSteps.IDLE:// WAIT FOR REQUEST	
+	//Wait for Reset
+		IF rtHomeReset.Q THEN
+			InOut.mcReset.Execute := TRUE;
+			InOut.mcJog.JogForward :=FALSE;
+			InOut.mcJog.JogBackwards :=FALSE;
+			xExecute := FALSE;
+			bError := FALSE;
+		END_IF	
+		InOut.xHoming	:= FALSE;
+	E_HomingSteps.INIT:		
+		;
+
+	E_HomingSteps.START:
+			ton_delay.IN	:= FALSE;
+			InOut.xHoming	:= TRUE;
+			InOut.rVeloPers :=30;
+			IF InOut.bdirFW THEN//first direction
+				eStates := E_HomingSteps.JOG_FW;	
+			ELSE
+				eStates := E_HomingSteps.JOG_BW;	
+			END_IF
+///////////////////////////////////////////////////////////////////////////	
+	E_HomingSteps.JOG_FW:
+		IF InOut.bPosSen THEN
+			InOut.mcJog.JogForward :=TRUE;			
+		ELSE
+			InOut.mcJog.JogForward :=FALSE;
+			eStates := E_HomingSteps.JOG_BW_DOG;			
+		END_IF
+	E_HomingSteps.JOG_BW_DOG:
+		IF InOut.bPositionSensor THEN
+			InOut.mcJog.JogBackwards :=FALSE;
+			eStates := E_HomingSteps.FW_DOG_OFF;			
+		ELSE
+			InOut.mcJog.JogBackwards :=TRUE;
+		END_IF	
+	E_HomingSteps.FW_DOG_OFF:	
+		IF InOut.bPositionSensor THEN
+			InOut.mcJog.JogForward := TRUE;
+			InOut.rVeloPers	:=	5;						
+		ELSE
+			InOut.mcJog.JogForward := FALSE;
+			eStates := E_HomingSteps.BW_DOG_ON;
+		END_IF		
+	E_HomingSteps.BW_DOG_ON:
+		IF InOut.bPositionSensor THEN
+			InOut.mcJog.JogBackwards := FALSE;
+			eStates := E_HomingSteps.WAIT;					
+		ELSE
+			InOut.rVeloPers	:=	2;		
+			InOut.mcJog.JogBackwards := TRUE;		
+		END_IF		
+///////////////////////////////////////////////////////////////////////////	
+	E_HomingSteps.JOG_BW:
+		IF InOut.bNegSen THEN
+			InOut.mcJog.JogBackwards :=TRUE;			
+		ELSE
+			InOut.mcJog.JogBackwards :=FALSE;
+			eStates := E_HomingSteps.JOG_FW_DOG;	
+		END_IF
+	E_HomingSteps.JOG_FW_DOG:
+		IF InOut.bPositionSensor THEN
+			InOut.mcJog.JogForward :=FALSE;
+			eStates := E_HomingSteps.BW_DOG_OFF;				
+		ELSE
+			InOut.mcJog.JogForward :=TRUE;
+		END_IF	
+	E_HomingSteps.BW_DOG_OFF:	
+		IF InOut.bPositionSensor THEN
+			InOut.mcJog.JogBackwards := TRUE;
+			InOut.rVeloPers	:=	5;						
+		ELSE
+			InOut.mcJog.JogBackwards := FALSE;
+			eStates := E_HomingSteps.FW_DOG_ON;
+		END_IF		
+	E_HomingSteps.FW_DOG_ON:
+		IF InOut.bPositionSensor THEN
+			InOut.mcJog.JogForward := FALSE;
+			eStates := E_HomingSteps.WAIT;					
+		ELSE
+			InOut.rVeloPers	:=	2;		
+			InOut.mcJog.JogForward := TRUE;		
+		END_IF		
+///////////////////////////////////////////////////////////////////////////
+	E_HomingSteps.WAIT:
+		ton_delay.IN	:= TRUE;
+		IF ton_delay.Q THEN
+			eStates := E_HomingSteps.MCHOME;	
+		END_IF
+	E_HomingSteps.MCHOME:
+		IF InOut.mcReadStatus.StandStill THEN
+			InOut.mcHome.Execute := TRUE;	
+		END_IF
+		IF NOT InOut.mcHome.Busy AND InOut.mcHome.Done THEN
+			InOut.mcHome.Execute := FALSE;
+			eStates := E_HomingSteps.DONE;	
+		END_IF		
+	E_HomingSteps.DONE:	
+		InOut.xHoming	:= FALSE;
+		InOut.xHomingDone	:= TRUE;
+		InOut.rVeloPers	:=	10;	
+		eStates := E_HomingSteps.IDLE;	
+		
+	E_HomingSteps.ERROR:	
+		InOut.mcJog.JogForward :=FALSE;
+		InOut.mcJog.JogBackwards :=FALSE;
+		IF InOut.mcReadStatus.Error THEN
+			InOut.xHomingDone	:= FALSE;
+		END_IF		
+		eStates := E_HomingSteps.IDLE;	
+		
+END_CASE
+
+xRedy		:= (eStates = E_HomingSteps.IDLE);
+xBusy		:= (eStates > E_HomingSteps.IDLE AND eStates < E_HomingSteps.DONE);
+xDone		:= (eStates = E_HomingSteps.DONE );
+xError		:= (eStates = E_HomingSteps.ERROR);]]></ST>
+    </Implementation>
+    <LineIds Name="MC_HomeAxis">
+      <LineId Id="27" Count="1" />
+      <LineId Id="699" Count="0" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="651" Count="1" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="343" Count="1" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="705" Count="2" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="49" Count="3" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="708" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="644" Count="0" />
+      <LineId Id="700" Count="0" />
+      <LineId Id="645" Count="5" />
+      <LineId Id="436" Count="0" />
+      <LineId Id="592" Count="5" />
+      <LineId Id="599" Count="0" />
+      <LineId Id="601" Count="3" />
+      <LineId Id="606" Count="0" />
+      <LineId Id="608" Count="2" />
+      <LineId Id="654" Count="0" />
+      <LineId Id="661" Count="1" />
+      <LineId Id="667" Count="0" />
+      <LineId Id="664" Count="2" />
+      <LineId Id="656" Count="1" />
+      <LineId Id="668" Count="1" />
+      <LineId Id="675" Count="0" />
+      <LineId Id="671" Count="0" />
+      <LineId Id="674" Count="0" />
+      <LineId Id="672" Count="0" />
+      <LineId Id="655" Count="0" />
+      <LineId Id="611" Count="5" />
+      <LineId Id="618" Count="0" />
+      <LineId Id="620" Count="3" />
+      <LineId Id="625" Count="0" />
+      <LineId Id="627" Count="2" />
+      <LineId Id="676" Count="14" />
+      <LineId Id="658" Count="0" />
+      <LineId Id="630" Count="0" />
+      <LineId Id="696" Count="1" />
+      <LineId Id="701" Count="2" />
+      <LineId Id="631" Count="0" />
+      <LineId Id="691" Count="2" />
+      <LineId Id="633" Count="6" />
+      <LineId Id="709" Count="0" />
+      <LineId Id="640" Count="2" />
+      <LineId Id="710" Count="1" />
+      <LineId Id="734" Count="2" />
+      <LineId Id="704" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="38" Count="2" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

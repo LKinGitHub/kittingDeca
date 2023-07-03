@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_IO_16_int" Id="{ed52737d-29a1-4b35-852b-433b8eec9403}">
+    <Declaration><![CDATA[TYPE ST_IO_16_int : // struct of digital IO for use in program and hmi 
+STRUCT
+	Ch : ARRAY[0..15] OF ST_IO ;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

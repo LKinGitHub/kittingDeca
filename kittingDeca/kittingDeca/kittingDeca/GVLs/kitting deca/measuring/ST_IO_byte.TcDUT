@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_IO_byte" Id="{cc700932-ac55-4234-9164-4df5f90e8698}">
+    <Declaration><![CDATA[TYPE ST_IO_byte : // struct of digital IO for use in program and hmi 
+STRUCT
+	Ch : ARRAY[0..7] OF BOOL ;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

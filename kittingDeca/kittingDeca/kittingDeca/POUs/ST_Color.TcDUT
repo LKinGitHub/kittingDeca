@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Color" Id="{24172166-0064-4266-8778-f4aca5433aba}">
+    <Declaration><![CDATA[TYPE ST_Color :
+STRUCT
+	RED			: DWORD	:= 16#FFFF0000;
+	YELLOW		: DWORD	:= 16#FFFFFF00;
+	GREEN		: DWORD	:= 16#FF00FF00;
+	GREY		: DWORD	:= 16#FFBEBEBE;
+	WHITE		: DWORD	:= 16#FFFFFFFF;
+	BLACK		: DWORD	:= 16#FF000000;
+	BLUE		: DWORD	:= 16#FF0000FF;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

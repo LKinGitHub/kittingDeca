@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_axisCtrl" Id="{2ac385ec-b262-4b8e-ba8d-e1a3f0cb06b1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_axisCtrl
+VAR_INPUT
+	
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR_IN_OUT     
+	stAxisCtrl	:ST_axisCtrl; 	
+	IN_OUT 		: ST_MotionAxis_MC	;//struct for each axis
+END_VAR
+VAR
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//add timeout for this fuction block
+CASE stAxisCtrl.iCmd OF
+	0:
+		IN_OUT.mcReset.Execute	:= FALSE;
+		IN_OUT.mcStop.Execute	:= FALSE	;
+	1:
+		IN_OUT.mcPower.Enable	:= TRUE;
+		stAxisCtrl.iCmd	:= 0;
+	2:
+		IN_OUT.mcPower.Enable	:= FALSE;
+		stAxisCtrl.iCmd	:= 0;	
+	3:
+		IN_OUT.mcReset.Execute	:= TRUE;
+		stAxisCtrl.iCmd	:= 0;
+	4:
+		IN_OUT.mcStop.Execute	:= TRUE;
+		stAxisCtrl.iCmd	:= 0;	
+	5: 
+		IN_OUT.mcMoveAbsolute.Execute := TRUE;
+		IN_OUT.rActualPosSet	:= stAxisCtrl.rPosition;
+		IN_OUT.rVelocitySet	:= stAxisCtrl.iSpeed;
+		IF IN_OUT.mcMoveAbsolute.Done THEN
+			stAxisCtrl.iCmd	:= 0;
+		END_IF
+END_CASE;
+stAxisCtrl.iStatus := stAxisCtrl.iCmd;
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_axisCtrl">
+      <LineId Id="43" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="34" Count="2" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,178 @@
+Id;Default
+282;
+206;%.2f mm
+740;%.3f mm
+386;%d
+201;%s
+646;%t
+209;+
+210;-
+153;1
+531;11111111111
+613;2
+265;222222
+171;560-2710N/P
+381;aboveFixture_light_curtain
+602;Acc
+843;Actual Position
+667;axis
+203;Axis Error 
+89;Belt
+1107;belt
+633;belt test
+117;Belt test
+411;Belt Test
+476;belt[0]
+143;belt[1]
+1145;belt[2]
+388;Breaker
+808;Breaker OFF
+486;Breaker ON
+994;buffer0
+1091;Buffer0
+1220;buffer1
+506;Buffer1
+183;Buffer[0]
+1331;Buffer[1]
+360;buffer_surface_LC_slot_0
+733;button
+235;button lamp
+856;Clear
+393;cmd
+981;count
+349;Dec
+216;deg/s
+217;deg/s2
+662;DOG
+396;elapse time
+673;error
+924;Extend
+614;extended
+625;FR test
+174;FR Test
+1075;freq
+841;HOME
+248;HomeDone
+986;Infeed[0]
+112;Infeed[1]
+886;infeed[].photo_sensor[0]
+1022;inner_conveyor
+99;Jerk
+839;JOG BW
+840;JOG FW
+79;LCS0307-E15
+250;Lift0
+698;Lift1
+382;Lift[0]
+688;Lift[1]
+1012;locked
+373;magnet
+896;magnet locked
+447;MAIN.iCnt1
+456;MAIN.tCnt1
+492;measuring light curtain
+215;mm/s
+214;mm/s2
+207;MOVE ABS
+569;Move relative
+524;ms
+169;NC_contactor
+205;Neg LS
+749;Other
+869;Others
+530;outer_conveyor
+162;Outfeed[0]
+990;Outfeed[1]
+494;outter_conveyor
+223;page1
+737;page2
+1439;photo_sensor
+70;photo_sensor[0]
+865;photo_sensor[1]
+876;PM
+413;PM0
+1418;PM1
+809;PM2
+1129;PM3
+1328;PM4
+55;PM5
+859;PM6
+1156;PM7
+1732;PM8
+989;PM9
+1105;PM_0
+617;PM_1
+911;PM_IO
+204;Pos LS
+218;power
+844;Power $R$NOn
+359;Power On
+1449;Power ON
+755;ReM
+457;ReM0
+355;rem0IO_0
+452;rem0IO_1
+315;rem0_IO_0
+86;rem0_IO_1
+852;ReM1
+296;ReM2
+1185;ReM3
+904;ReM4
+274;ReM5
+882;ReM6
+996;ReM7
+763;ReM8
+1106;ReM9
+1355;ReMIO_0
+1011;ReMIO_1
+672;rem_0
+155;ReM_0
+88;rem_1
+795;ReM_1
+462;Replenishment
+199;Reset
+481;Retract
+934;retracted
+1226;RFID[0]
+453;RFID[1]
+186;robot
+72;roller
+983;Set absolute$R$Nencoder as line
+622;Set absolute$R$Nencoder as linear
+454;Set absolute$R$Nencoder as rotation
+606;Set absolute $R$Nencoder as line
+230;Set absolute encoder$R$N
+976;Set absoluteencoder $R$Nas line
+545;Set Incremental encoder
+883;Set incremental encoder
+871;Set incremental encoder $R$Nas line
+719;Set incremental encoder as line
+208;Set Point
+14;Set Pos to 0
+284;sick measure
+765;SLC
+971;slot_0
+156;slot_1
+122;slot_2
+198;Stop
+336;surface_light_curtain
+379;time
+637;valve_clamp
+1384;valve_inner[0]
+67;valve_inner[1]
+1359;valve_inner[2]
+1180;valve_outer[0]
+1288;valve_outer[1]
+728;valve_outter[0]
+516;valve_perturbation[0]
+836;valve_perturbation[1]
+970;valve_perturbation[2]
+148;valve_perturbation[3]
+227;valve_stopper
+200;Velocity
+403;X
+404;Y
+405;Z
+607;计数
+641;计算
+664;页面1
